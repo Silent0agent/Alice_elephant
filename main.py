@@ -68,7 +68,8 @@ def handle_dialog(req, res):
                 "Не хочу.",
                 "Не буду.",
                 "Отстань!",
-            ]
+            ],
+            'what_to_buy': 'слон'
         }
         # Заполняем текст ответа
         res['response']['text'] = 'Привет! Купи слона!'
@@ -83,21 +84,33 @@ def handle_dialog(req, res):
     # что нам прислал пользователь
     # Если он написал 'ладно', 'куплю', 'покупаю', 'хорошо',
     # то мы считаем, что пользователь согласился.
-    # Подумайте, всё ли в этом фрагменте написано "красиво"?
     if req['request']['original_utterance'].lower() in [
         'ладно',
         'куплю',
         'покупаю',
         'хорошо',
+        'я покупаю',
+        'я куплю'
     ]:
         # Пользователь согласился, прощаемся.
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True
+        if sessionStorage[user_id]['what_to_buy'] == 'кролик':
+            res['response']['text'] = 'Кролика можно найти на Яндекс.Маркете!'
+            res['response']['end_session'] = True
+            return
+        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!\nА теперь купи кролика'
+        sessionStorage[user_id] = {
+            'suggests': [
+                "Не хочу.",
+                "Не буду.",
+                "Отстань!",
+            ],
+            'what_to_buy': 'кролик'
+        }
         return
 
-    # Если нет, то убеждаем его купить слона!
+    # Если нет, то убеждаем его купить предмет!
     res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи слона!"
+        f"Все говорят '{req['request']['original_utterance']}', а ты купи {sessionStorage[user_id]['what_to_buy']}а!"
     res['response']['buttons'] = get_suggests(user_id)
 
 
@@ -120,7 +133,7 @@ def get_suggests(user_id):
     if len(suggests) < 2:
         suggests.append({
             "title": "Ладно",
-            "url": "https://market.yandex.ru/search?text=слон",
+            "url": f"https://market.yandex.ru/search?text={session['what_to_by']}",
             "hide": True
         })
 

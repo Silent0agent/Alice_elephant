@@ -135,7 +135,7 @@ def get_suggests(user_id):
     if len(suggests) < 2:
         suggests.append({
             "title": "Ладно",
-            "url": f"https://market.yandex.ru/search?text={session['what_to_by']}",
+            "url": f"https://market.yandex.ru/search?text={session['what_to_buy']}",
             "hide": True
         })
 

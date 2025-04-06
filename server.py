@@ -106,6 +106,7 @@ def handle_dialog(req, res):
             ],
             'what_to_buy': 'кролик'
         }
+        res['response']['buttons'] = get_suggests(user_id)
         return
 
     # Если нет, то убеждаем его купить предмет!
@@ -126,6 +127,7 @@ def get_suggests(user_id):
 
     # Убираем первую подсказку, чтобы подсказки менялись каждый раз.
     session['suggests'] = session['suggests'][1:]
+    # session['what_to_buy'] = session
     sessionStorage[user_id] = session
 
     # Если осталась только одна подсказка, предлагаем подсказку

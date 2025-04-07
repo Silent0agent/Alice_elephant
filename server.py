@@ -25,10 +25,10 @@ def main():
         'version': request.json['version'],
         'response': {
             'end_session': False,
-            'buttons': {
+            'buttons': [{
                 'title': 'Помощь',
                 'hide': True
-            }
+            }]
         }
 
     }
@@ -54,7 +54,9 @@ def handle_dialog(res, req):
                        'Последующие действия зависят от корректности вашей догадки. '
                        'Если вы отгадаете город, то Алиса предложит отгадать новый, если же вы не отгадали, то '
                        'Алиса предложит другую картинку этого же города.')
-        res['response']['end_session'] = True
+        if not sessionStorage[user_id]['game_started'] and sessionStorage[user_id]['first_name'] is not None:
+            res['response']['buttons'].append({'title': 'Да', 'hide': True})
+            res['response']['buttons'].append({'title': 'Нет', 'hide': True})
         return
 
     if sessionStorage[user_id]['first_name'] is None:

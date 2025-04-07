@@ -7,11 +7,11 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 cities = {
-    'москва': ['1540737/daa6e420d33102bf6947', '213044/7df73ae4cc715175059e'],
-    'нью-йорк': ['1652229/728d5c86707054d4745f', '1030494/aca7ed7acefde2606bdc'],
-    'париж': ["1652229/f77136c2364eb90a3ea8", '123494/aca7ed7acefd12e606bdc'],
-    'минск': [],
-    'смоленск': []
+    'москва': ['1521359/e2e61c8bc5769e349ee7', '1533899/d522e3493e558e69fef7'],
+    'нью-йорк': ['1521359/49ffc4a8ac2b5f05e575', '965417/932c0b2316cbf4292a08'],
+    'париж': ['965417/9bca5e5ad496f3f325c8', '1652229/d766c8943b7ab1963da7'],
+    'минск': ['1030494/8bc9f7cb0054d022c8c8', '213044/61b4d932d250e24191d2'],
+    'смоленск': ['997614/64872745418082945e10', '1030494/a79df5229b4602b740d9']
 }
 
 sessionStorage = {}
@@ -24,8 +24,13 @@ def main():
         'session': request.json['session'],
         'version': request.json['version'],
         'response': {
-            'end_session': False
+            'end_session': False,
+            'buttons': {
+                'title': 'Помощь',
+                'hide': True
+            }
         }
+
     }
     handle_dialog(response, request.json)
     logging.info('Response: %r', response)
@@ -41,6 +46,16 @@ def handle_dialog(res, req):
             'game_started': False  # здесь информация о том, что пользователь начал игру. По умолчанию False
         }
         return
+    if req['request']['original_utterance'].lower() == 'помощь':
+        res['response'][
+            'text'] = ('При запуске навыка Алиса запросит ваше имя, введите его. После этого она предложит вам поиграть'
+                       ' в игру "Отгадай город", скажите "да", чтобы она предложила вам город для отгадывания.'
+                       ' Затем назовите город, который вы видите на картинке. '
+                       'Последующие действия зависят от корректности вашей догадки. '
+                       'Если вы отгадаете город, то Алиса предложит отгадать новый, если же вы не отгадали, то '
+                       'Алиса предложит другую картинку этого же города.')
+        res['response']['end_session'] = True
+        return
 
     if sessionStorage[user_id]['first_name'] is None:
         first_name = get_first_name(req)
@@ -54,6 +69,10 @@ def handle_dialog(res, req):
             # Предлагаем ему сыграть и два варианта ответа "Да" и "Нет".
             res['response']['text'] = f'Приятно познакомиться, {first_name.title()}. Я Алиса. Отгадаешь город по фото?'
             res['response']['buttons'] = [
+                {
+                    'title': 'Помощь',
+                    'hide': True
+                },
                 {
                     'title': 'Да',
                     'hide': True
@@ -89,6 +108,10 @@ def handle_dialog(res, req):
             else:
                 res['response']['text'] = 'Не поняла ответа! Так да или нет?'
                 res['response']['buttons'] = [
+                    {
+                        'title': 'Помощь',
+                        'hide': True
+                    },
                     {
                         'title': 'Да',
                         'hide': True

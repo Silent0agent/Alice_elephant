@@ -43,7 +43,7 @@ def handle_dialog(res, req):
                                   get_geo_info(cities[0], 'country')
     elif len(cities) == 2:
         distance = get_distance(get_geo_info(
-            cities[0], 'coordinates'), get_distance(cities[1], 'coordinates'))
+            cities[0], 'coordinates'), get_geo_info(cities[1], 'coordinates'))
         res['response']['text'] = 'Расстояние между этими городами: ' + \
                                   str(round(distance)) + ' км.'
     else:

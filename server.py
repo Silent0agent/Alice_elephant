@@ -24,11 +24,7 @@ def main():
         'session': request.json['session'],
         'version': request.json['version'],
         'response': {
-            'end_session': False,
-            'buttons': [{
-                'title': 'Помощь',
-                'hide': True
-            }]
+            'end_session': False
         }
 
     }
@@ -46,18 +42,6 @@ def handle_dialog(res, req):
             'game_started': False  # здесь информация о том, что пользователь начал игру. По умолчанию False
         }
         return
-    if req['request']['original_utterance'].lower() == 'помощь':
-        res['response'][
-            'text'] = ('При запуске навыка Алиса запросит ваше имя, введите его. После этого она предложит вам поиграть'
-                       ' в игру "Отгадай город", скажите "да", чтобы она предложила вам город для отгадывания.'
-                       ' Затем назовите город, который вы видите на картинке. '
-                       'Последующие действия зависят от корректности вашей догадки. '
-                       'Если вы отгадаете город, то Алиса предложит отгадать новый, если же вы не отгадали, то '
-                       'Алиса предложит другую картинку этого же города.')
-        if not sessionStorage[user_id]['game_started'] and sessionStorage[user_id]['first_name'] is not None:
-            res['response']['buttons'].append({'title': 'Да', 'hide': True})
-            res['response']['buttons'].append({'title': 'Нет', 'hide': True})
-        return
 
     if sessionStorage[user_id]['first_name'] is None:
         first_name = get_first_name(req)
@@ -71,10 +55,6 @@ def handle_dialog(res, req):
             # Предлагаем ему сыграть и два варианта ответа "Да" и "Нет".
             res['response']['text'] = f'Приятно познакомиться, {first_name.title()}. Я Алиса. Отгадаешь город по фото?'
             res['response']['buttons'] = [
-                {
-                    'title': 'Помощь',
-                    'hide': True
-                },
                 {
                     'title': 'Да',
                     'hide': True
@@ -111,17 +91,16 @@ def handle_dialog(res, req):
                 res['response']['text'] = 'Не поняла ответа! Так да или нет?'
                 res['response']['buttons'] = [
                     {
-                        'title': 'Помощь',
-                        'hide': True
-                    },
-                    {
                         'title': 'Да',
                         'hide': True
                     },
                     {
                         'title': 'Нет',
                         'hide': True
-                    }
+                    },
+                    {'title': 'Покажи город на карте',
+                     "url": f"https://yandex.ru/maps/?mode=search&text={sessionStorage[user_id]['guessed_cities'][-1]}",
+                     'hide': True}
                 ]
         else:
             play_game(res, req)
@@ -154,6 +133,19 @@ def play_game(res, req):
             res['response']['text'] = 'Правильно! Сыграем ещё?'
             sessionStorage[user_id]['guessed_cities'].append(city)
             sessionStorage[user_id]['game_started'] = False
+            res['response']['buttons'] = [
+                {
+                    'title': 'Да',
+                    'hide': True
+                },
+                {
+                    'title': 'Нет',
+                    'hide': True
+                },
+                {'title': 'Покажи город на карте',
+                 "url": f"https://yandex.ru/maps/?mode=search&text={sessionStorage[user_id]['guessed_cities'][-1]}",
+                 'hide': True}
+            ]
             return
         else:
             # если нет

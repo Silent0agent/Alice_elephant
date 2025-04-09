@@ -1,1 +1,2 @@
-Flask
+deep_translator==1.11.4
+Flask==3.1.0

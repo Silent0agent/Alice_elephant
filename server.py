@@ -33,7 +33,7 @@ def handle_dialog(req, res):
                                    ' чтобы я перевела твоё слово!')
         return
     req_for_check = req['request']['original_utterance'].lower().split()
-    if len(req_for_check) == 3 and req_for_check[0] == 'переведите' or req_for_check[0] == 'переведи':
+    if len(req_for_check) > 2 and (req_for_check[0] == 'переведите' or req_for_check[0] == 'переведи'):
         if req_for_check[1] == 'слово':
             res['response']['text'] = translate_word(req_for_check[2])
             return
